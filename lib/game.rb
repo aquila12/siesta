@@ -21,10 +21,17 @@ class Game
     @ground_tilemap.window_shape(84, 48)
   end
 
+  def set_time_of_day
+    tod = @args.tick_count / 1200.0
+    tod = 1.0 - tod if(tod > 0.5)
+    tod *= 2
+    @sky_tilemap.focus_window(42, 24 + tod * 100)
+  end
+
   def draw
     tilemaps = [@sky_tilemap, @ground_tilemap]
     @ground_tilemap.focus_window(42 + @args.tick_count / 2, 24)
-    @sky_tilemap.focus_window(42, 24 + @args.tick_count / 10)
+    set_time_of_day
 
     @window.outputs.sprites << tilemaps
     #@window.outputs << objects
