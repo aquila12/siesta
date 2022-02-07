@@ -49,7 +49,7 @@ class ImageTiles
       @stances = protosprite.stances
       @anchor_x, @anchor_y = protosprite.anchor
 
-      stance = :idle
+      self.stance = :idle
     end
 
     def stance=(name)
@@ -74,14 +74,6 @@ class ImageTiles
     end
   end
 
-  def actor(name, **stances)
-    sets = stances.transform_values do |definition|
-      _prep_tileset(*definition)
-    end
-
-    ACTORS[name] = Protosprite.new([0.5, 0.0], **sets)
-  end
-
   def _prep_tileset(x, y, w, h, count = 1)
     x, y, w, h = [x * @u, y * @v, w * @u, h * @v]
     Tileset.new(@path, w, h).tap do |t|
@@ -91,6 +83,14 @@ class ImageTiles
 
   def tileset(name, x, y, w, h, tiles)
     TILESET[name] = _prep_tileset(x, y, w, h, tiles)
+  end
+
+  def actor(name, **stances)
+    sets = stances.transform_values do |definition|
+      _prep_tileset(*definition)
+    end
+
+    ACTORS[name] = Protosprite.new([0.5, 0.0], **sets)
   end
 
   def object(name, *ts_params, anchor: [0.5, 0.0])

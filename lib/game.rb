@@ -6,6 +6,14 @@ class Game
     @window = DrawWindow.new(args, 84, 48, 15)
     init_sky
     init_ground
+    p ACTORS[:manuel]
+    p OBJECTS[:horse]
+    @actors = [
+      ACTORS[:manuel].new(10, 4).tap { |a| a.stance = :walk },
+      ACTORS[:mount].new(30, 4).tap { |a| a.stance = :walk },
+      ACTORS[:mount].new(50, 4).tap { |a| a.stance = :rest },
+      OBJECTS[:horse].new(70, 4)
+    ]
   end
 
   def init_sky
@@ -28,6 +36,10 @@ class Game
     @sky_tilemap.focus_window(42, 24 + tod * 100)
   end
 
+  def update
+    @actors.each { |a| a.animate(0.2) }
+  end
+
   def draw
     tilemaps = [@sky_tilemap, @ground_tilemap]
     @ground_tilemap.focus_window(42 + @args.tick_count / 2, 24)
@@ -35,13 +47,13 @@ class Game
 
     @window.outputs.sprites << tilemaps
     #@window.outputs << objects
-    #@window.outputs << actors
+    @window.outputs.sprites << @actors if @args.tick_count
     @window.draw
   end
 end
 
 def tick(args)
   $game = @game = Game.new(args) if args.tick_count.zero?
-  #@game.update
+  @game.update
   @game.draw
 end
