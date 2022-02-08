@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Tilemap
+  attr_accessor :stage
+
   def initialize(width, height, tileset, default = 0)
     @map = Array.new(width * height, default)
     @width = width
@@ -8,18 +10,7 @@ class Tilemap
     @px, @py = tileset.dimensions
     @path = tileset.path
     @tiles = tileset.tiles
-  end
-
-  def window_shape(w, h)
-    @right, @top = w, h
-    @dx, @dy = [w / 2, h / 2]
-  end
-
-  def focus_window(x, y)
-    x -= @dx
-    y -= @dy
-    @i, @ox = x.divmod(@px)
-    @j, @oy = y.divmod(@py)
+    @x, @y = [0, 0]
   end
 
   def peek(x, y)
@@ -35,16 +26,21 @@ class Tilemap
   end
 
   def draw_override(canvas)
-    n0 = @j * @width + @i
+    ox, oy = @stage.rel(@x, @y)
+    right, top = @stage.camera
+    i0, x0 = (-ox).divmod(@px)
+    j0, y0 = (-oy).divmod(@py)
 
-    y = -@oy
-    j = @j
-    while(y < @top) do
-      if(j >=0 && j < @height)
-        x = -@ox
-        i = @i
+    n0 = j0 * @width + i0
+
+    y = -y0
+    j = j0
+    while(y < top) do
+      if(j >= 0 && j < @height)
+        x = -x0
+        i = i0
         n = n0
-        while(x < @right) do
+        while(x < right) do
           if(i >= 0 && i < @width)
             t = @map[n]
             tx, ty = @tiles[t]
