@@ -35,6 +35,10 @@ class Sprite
     @tile_x, @tile_y = @tiles[@t.to_i]
   end
 
+  def position
+    [@x, @y]
+  end
+
   def x
     @x - @stage.x
   end
