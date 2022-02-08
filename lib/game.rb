@@ -5,7 +5,6 @@ class Game
     @args = args
     @window = DrawWindow.new(args, 84, 48, 15)
     @stage = Stage.new(840, 60, window: [84, 48])
-    @bg_stage = Stage.new(120, 120, window: [84, 48])
     init_sky
     init_ground
     @actors = [
@@ -18,14 +17,15 @@ class Game
       @ground_tilemap,
       *@actors
     )
-    @bg_stage.add(@sky_tilemap)
   end
 
   def init_sky
+    @bg_stage = Stage.new(120, 120, window: [84, 48])
     @sky_tilemap = Tilemap.new(30, 30, TILESET[:sky], 4)
     ([0] * 15 + [1] * 2 + [2] * 3 + [3] * 2).each.with_index do |value, line|
       30.times { |n| @sky_tilemap.poke(n, line, value) }
     end
+    @bg_stage.add(@sky_tilemap)
   end
 
   def init_ground
