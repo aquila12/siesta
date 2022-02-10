@@ -32,13 +32,6 @@ class Game
     @ground_tilemap = Tilemap.new(210,1, TILESET[:level_tile], 1)
   end
 
-  def set_time_of_day
-    tod = @args.tick_count / 1200.0
-    tod = 1.0 - tod if(tod > 0.5)
-    tod *= 2
-    @bg_stage.focus(42, 24 + tod * 100)
-  end
-
   def update
     @actors.each { |a| a.animate(0.2) }
   end
@@ -55,8 +48,45 @@ class Game
   end
 end
 
+def focus_stage(x, y)
+  limits = $state.stage.viewrect
+  off_x, off_y = [CAMERA.w / 2, CAMERA.h / 2]
+
+  focus = [x.round - off_x, y.round - off_y, CAMERA.w, CAMERA.h]
+
+  # Origin
+  origin = $state.stage.origin = []
+  origin.x = focus.right > limits.right ? (limits.right - CAMERA.w): [focus.left, limits.left].max
+  origin.y = focus.top > limits.top ? (limits.top - CAMERA.h): [focus.bottom, limits.bottom].max
+end
+
+def set_time_of_day(t)
+  t %= 24
+  case t
+  when (4..8)
+    ss = (8.0 - t) / 4.0
+  when (8..16)
+    ss = 0.0
+  when (16..20)
+    ss = (t - 16.0) / 4.0
+  else
+    ss = 1.0
+  end
+
+  $state.time_of_day = (ss == 1.0) ? 'night' : ''
+  $state.sky.sunset = ss
+end
+
 def tick(args)
-  $game = @game = Game.new(args) if args.tick_count.zero?
-  @game.update
-  @game.draw
+  init_game(args) if args.tick_count.zero?
+  window = DrawWindow.new(args, CAMERA.w, CAMERA.h, 15)
+  focus_stage(40 + args.tick_count, 0)
+  set_time_of_day(24 * args.tick_count / 1200.0)
+  window.outputs.sprites << Skypainter.new
+  window.outputs.sprites << Tilepainter.new
+  
+  window.draw
+  # $game = @game = Game.new(args) if args.tick_count.zero?
+  # @game.update
+  # @game.draw
 end

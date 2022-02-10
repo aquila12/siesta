@@ -9,4 +9,8 @@ require 'lib/tilemap.rb'
 
 require 'resources/tiles.rb'
 
+require 'lib/drawing.rb'
+
+require 'lib/init_game.rb'
+
 require 'lib/game.rb'
