@@ -8,8 +8,9 @@ end
 
 def init_sky
   sky = $state.sky = {}
-  sky.data = [0] * 12 + [1] * 3 + [2] * 2 + [3] * 3
+  sky.tiledata = [0] * 12 + [1] * 3 + [2] * 2 + [3] * 3
   sky.tileset = 'sky'
+  sky.dimensions = [0, 0, 21, sky.tiledata.length]
 end
 
 # Stubby
