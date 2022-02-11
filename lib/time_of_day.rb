@@ -29,12 +29,12 @@ class TimeOfDay
         x: p * x_scale, y: y_scale * (p * (1 - p)) - SKY_OBJECT_SIZE,
         w: SKY_OBJECT_SIZE, h: SKY_OBJECT_SIZE,
         path: 'resources/skyobjects.png',
-        tile_x: sky_object_id(t) * SKY_OBJECT_SIZE, tile_y: 0,
+        tile_x: sky_sprite_id(t) * SKY_OBJECT_SIZE, tile_y: 0,
         tile_w: SKY_OBJECT_SIZE, tile_h: SKY_OBJECT_SIZE,
       }
     end
 
-    def sky_object_id(t)
+    def sky_sprite_id(t)
       case t
       when (6..9) then 0
       when (9..15) then 2

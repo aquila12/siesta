@@ -50,10 +50,10 @@ def load_stage_furniture
   stage = $state.stage
 
   stage.passives = []
-  10.times do
+  30.times do
     f = {}
-    f.resource = %i[cactus bush gate].sample
-    f.position = [rand(stage.rectangle.w), TILE_SIZE]
+    f.sprite_id = rand(3)
+    f.position = [rand(stage.rectangle.w - TILE_SIZE), TILE_SIZE]
     f.t = 0.0
     stage.passives << f
   end
