@@ -21,10 +21,12 @@ class TimeOfDay
     end
 
     def sky_object(t)
-      phase = ((t + 6) % 12) / 12.0
+      x_scale = CAMERA.w - SKY_OBJECT_SIZE
+      y_scale = 4 * CAMERA.h
+      p = ((t + 6) % 12) / 12.0
+      x =
       {
-        x: (CAMERA.w - SKY_OBJECT_SIZE) * phase,
-        y: 4 * CAMERA.h * (phase * (1 - phase)) - SKY_OBJECT_SIZE,
+        x: p * x_scale, y: y_scale * (p * (1 - p)) - SKY_OBJECT_SIZE,
         w: SKY_OBJECT_SIZE, h: SKY_OBJECT_SIZE,
         path: 'resources/skyobjects.png',
         tile_x: sky_object_id(t) * SKY_OBJECT_SIZE, tile_y: 0,
