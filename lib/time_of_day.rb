@@ -8,7 +8,7 @@ class TimeOfDay
 
       sky.object = sky_object(t)
       sky.origin = [0, sunset_phase(t) * sky.dimensions.h * TILE_SIZE]
-      $state.time_of_day = (t < 5 || t > 19) ? 'night' : 'day'
+      $state.time_of_day = (t < 5 || t > 19) ? :night : :day
     end
 
     def sunset_phase(t)

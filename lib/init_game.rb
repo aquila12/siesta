@@ -15,14 +15,19 @@ end
 
 # Stubby
 def load_stage
+  stage = $state.stage = {}
+  stage.passives = []
+  stage.objects = []
+  stage.actors = nil
+
   load_stage_tiles
   adjust_stage_geometry
   load_stage_furniture
 end
 
 def load_stage_tiles
+  stage = $state.stage
   dims = [0, 0, 210, 12]
-  stage = $state.stage = {}
 
   stage.tileset = 'level'
   stage.tiledata = Array.new(dims.w * dims.h, 0) { |n| (n < dims.w) ? 1 : 0 }
@@ -49,12 +54,11 @@ end
 def load_stage_furniture
   stage = $state.stage
 
-  stage.passives = []
-  30.times do
-    f = {}
-    f.sprite_id = rand(3)
-    f.position = [rand(stage.rectangle.w - TILE_SIZE), TILE_SIZE]
-    f.t = 0.0
-    stage.passives << f
+  15.times do
+    stage.passives << Spritepainter.make_sprite(
+      %i[cactus bush gate].sample,
+      rand(stage.rectangle.w - SPRITE_SIZE.w),
+      TILE_SIZE
+    )
   end
 end

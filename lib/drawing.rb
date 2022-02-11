@@ -1,8 +1,57 @@
 # frozen_string_literal: true
 
+class Spritepainter
+  def initialize(stage, tint = [255, 255, 255])
+    @path = 'resources/sprites.png'
+    @stage = stage
+    @r, @g, @b = tint
+  end
+
+  def self.make_sprite(what, x, y)
+    {
+      x: x, y: y, spr: what, fr: 0, t: 0.0, mirror: false
+    }
+  end
+
+  def draw_override(canvas)
+    tw, th = [SPRITE_SIZE.w, SPRITE_SIZE.h]
+    left, bottom, right, top = -tw, -th, CAMERA.right, CAMERA.top
+    ox, oy = @stage.origin
+
+    [@stage.passives, @stage.objects, [@stage.actor]].each do |sprites|
+      next unless sprites
+
+      n_sprites = sprites.length
+      n = 0
+      while(n < n_sprites) do
+        s = sprites[n]
+        n += 1
+        next unless s
+
+        x, y = [s.x - ox, s.y - oy]
+        next unless(x > left && y > bottom && x < right && y < top)
+        t = SPRITES[s.spr][s.fr]
+        ty, tx = t.divmod(TILES_PER_ROW)
+
+        canvas.draw_sprite_3(
+          x, y, tw, th, @path,
+          nil, nil, @r, @g, @b, # Angle A R G B
+          tx * tw, ty * th, tw, th, # Tile coords (top-down)
+          s.mirror, nil, nil, nil, # Flip H V, Anchor X Y
+          nil, nil, nil, nil # Source coords (bottom-up)
+        )
+      end
+    end
+  rescue => e
+    puts "#{e}: #{e.message}"
+    puts e.backtrace
+  end
+end
+
 class Tilepainter
-  def initialize(tiles, stride_i: 1, stride_j: nil, designator: 'tiles')
-    @path = "resources/#{tiles.tileset}#{designator}.png"
+  def initialize(tiles, stride_i: 1, stride_j: nil, inverse: false)
+    option = inverse ? 'tiles-inverse' : 'tiles'
+    @path = "resources/#{tiles.tileset}#{option}.png"
     @width, @height = tiles.dimensions.w, tiles.dimensions.h
 
     @tiledata = tiles.tiledata

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'lib/constants.rb'
 
+require 'lib/color.rb'
 require 'lib/draw_window.rb'
+
+require 'lib/constants.rb'
 
 require 'lib/drawing.rb'
 

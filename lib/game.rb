@@ -12,31 +12,18 @@ def focus_stage(x, y)
   origin.y = focus.top > limits.top ? (limits.top - CAMERA.h): [focus.bottom, limits.bottom].max
 end
 
-def stage_passive_sprites(stage, time)
-  ox, oy = stage.origin
-  stage.passives.map do |o|
-    x, y = o.position
-    ty, tx = o.sprite_id.divmod(TILES_PER_ROW)
-    p = STAGE_PASSIVE_SIZE
-    {
-      x: x - ox, y: y - oy, w: p, h: p,
-      path: "resources/stagepassives#{time}.png",
-      tile_x: tx * p, tile_y: ty * p, tile_w: p, tile_h: p
-    }
-  end
-end
-
 def draw_stagescene
   stage = $state.stage
   sky = $state.sky
   time = $state.time_of_day
 
   window = DrawWindow.new($args, CAMERA.w, CAMERA.h, 15)
+  window.outputs.solids << CAMERA + Color[NOKIA_LCD_DARK].rgb
   window.outputs.sprites << Tilepainter.new(sky, stride_i: 0, stride_j: 1)
   window.outputs.sprites << sky.object
 
-  window.outputs.sprites << Tilepainter.new(stage, designator: time)
-  window.outputs.sprites << stage_passive_sprites(stage, time)
+  window.outputs.sprites << Tilepainter.new(stage, inverse: time == :night)
+  window.outputs.sprites << Spritepainter.new(stage, SPRITE_TINT[time])
 
   window.draw
 end
