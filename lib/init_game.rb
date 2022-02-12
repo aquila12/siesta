@@ -67,11 +67,11 @@ end
 
 def insert_game_objects
   stage = $state.stage
-  stage.objects << Spritepainter.make_sprite(
-    :campfire,
-    rand(stage.rectangle.w - SPRITE_SIZE.w),
-    TILE_SIZE
-  )
+
+  fire_x = rand(stage.rectangle.w - SPRITE_SIZE.w)
+  stage.objects << Spritepainter.make_sprite(:campfire, fire_x, TILE_SIZE)
+  stage.objects << Spritepainter.make_sprite(:flame, fire_x, TILE_SIZE)
+  stage.objects << Spritepainter.make_sprite(:smoke, fire_x, TILE_SIZE*2)
 
   stage.actor = Spritepainter.make_sprite(
     :player_walk,
