@@ -66,12 +66,10 @@ class Tilepainter
   attr_accessor :inverse
 
   def initialize(tiles, stride_i: 1, stride_j: nil, inverse: false)
+    @tiles = tiles
     @inverse = inverse
-    @width, @height = tiles.dimensions.w, tiles.dimensions.h
 
-    @prefix = "resources/#{tiles.tileset}"
-    @tiledata = tiles.tiledata
-    @origin = tiles.origin
+    @width, @height = @tiles.dimensions.w, @tiles.dimensions.h
 
     @stride_i = stride_i || @height
     @stride_j = stride_j || @width
@@ -79,11 +77,14 @@ class Tilepainter
 
   def draw_override(canvas)
     option = @inverse ? 'tiles-inverse' : 'tiles'
-    path = "#{@prefix}#{option}.png"
+    path = "resources/#{@tiles.tileset}#{option}.png"
     right, top = CAMERA.right, CAMERA.top
 
-    i0, x0 = (@origin.x).divmod(TILE_SIZE)
-    j0, y0 = (@origin.y).divmod(TILE_SIZE)
+    tiledata = @tiles.tiledata
+
+    o = @tiles.origin
+    i0, x0 = o.x.divmod(TILE_SIZE)
+    j0, y0 = o.y.divmod(TILE_SIZE)
 
     n0 = j0 * @stride_j + i0 * @stride_i
 
@@ -96,7 +97,7 @@ class Tilepainter
         n = n0
         while(x < right) do
           if(i >= 0 && i < @width)
-            t = @tiledata[n]
+            t = tiledata[n]
             ty, tx = t.divmod(TILES_PER_ROW)
 
             canvas.draw_sprite_3(

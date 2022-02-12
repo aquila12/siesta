@@ -77,6 +77,14 @@ class Level
     @objects << object
   end
 
+  def focus(target)
+    off_x, off_y = [CAMERA.w / 2, CAMERA.h / 2]
+    focus = [target.x.round - off_x, target.y.round - off_y, CAMERA.w, CAMERA.h]
+
+    @origin.x = focus.right > @viewrect.right ? (@viewrect.right - CAMERA.w): [focus.left, @viewrect.left].max
+    @origin.y = focus.top > @viewrect.top ? (@viewrect.top - CAMERA.h): [focus.bottom, @viewrect.bottom].max
+  end
+
   def update
     @spritepainter.animate
     @spritepainter.tint = SPRITE_TINT[$state.time_of_day]
