@@ -26,8 +26,8 @@ def draw_stagescene
   window.draw
 end
 
-def demo_move(t)
-  case t % 16
+def demo_move
+  case $state.time
   when (1..6) then dx = 1
   when (8..10) then dx = -1
   when (12..15) then dx = nil
@@ -44,11 +44,55 @@ def demo_move(t)
   end
 end
 
+def do_movement
+  actor = $state.stage.actor
+  input = $state.input
+  dx = input.dpad.x * 0.25
+
+  if input.idle
+    actor.spr = :player_rest
+  else
+    actor.spr = dx.zero? ? :player_wait : :player_walk
+    actor.x += dx
+    actor.mirror = dx.negative? ? true : dx.positive? ? false : actor.mirror
+  end
+end
+
+def intybool(x)
+  x ? 1 : 0
+end
+
+def map_input(**what)
+  what.each do |k, v|
+    $state.input[k] = v if v
+  end
+end
+
+def do_input(args)
+  input = $state.input = {}
+
+  map_input l: args.inputs.keyboard.key_held.a,
+            r: args.inputs.keyboard.key_held.d
+
+  $state.time_to_idle = 120 unless input.empty?
+  $state.time_to_idle -= 1
+  input.idle = $state.time_to_idle <= 0
+
+  input.dpad = [intybool(input.r) - intybool(input.l), 0]
+end
+
 def tick(args)
   init_game(args) if args.tick_count.zero?
-  TimeOfDay.set(args.tick_count * TIME_SCALE)
+  $state.time = args.tick_count / 60.0
+  TimeOfDay.set($state.time * TIME_SCALE)
 
-  demo_move(args.tick_count / 60.0)
+  do_input(args)
+
+  if($state.time > 15)
+    do_movement
+  else
+    demo_move
+  end
 
   focus_stage($state.stage.actor)
 
