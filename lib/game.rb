@@ -56,7 +56,8 @@ def do_input(args)
   input = $state.input = {}
 
   map_input l: args.inputs.keyboard.key_held.a,
-            r: args.inputs.keyboard.key_held.d
+            r: args.inputs.keyboard.key_held.d,
+            interact: args.inputs.keyboard.key_down.w
 
   $state.time_to_idle = 120 unless input.empty?
   $state.time_to_idle -= 1

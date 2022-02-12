@@ -12,6 +12,7 @@ class Level
 
     init_geometry
     load_furniture
+    load_doors
     insert_game_objects
     init_painters
   end
@@ -21,6 +22,8 @@ class Level
     @tileset = 'level'
     @tiledata = Array.new(dims.w * dims.h, 0) { |n| (n < dims.w) ? 1 : 0 }
     @objects = []
+    @hotspots = []
+    @triggers = []
     @object_idx = {}
     @anon = 1
   end
@@ -37,14 +40,34 @@ class Level
     end
   end
 
+  def load_doors
+    insert_hotspot auto: true, rect: [0, 0, 16, CAMERA.h] do
+      insert_object(make_object(:cactus, [rand(40), rand(20)]))
+      true
+    end
+
+    insert_hotspot auto: false, rect: [@rectangle.w - 16, 0, 16, CAMERA.h] do
+      insert_object(make_object(:bush, [@rectangle.w - rand(40), rand(20)]))
+      false
+    end
+  end
+
   def insert_game_objects
     fire_x = rand(@rectangle.w - SPRITE_SIZE.w)
     insert_object(make_object(:campfire, [fire_x, TILE_SIZE]))
-    insert_object(make_object(:flame, [fire_x, TILE_SIZE]))
-    insert_object(make_object(:smoke, [fire_x, TILE_SIZE*2]))
+
+    insert_hotspot(auto: false, rect: [fire_x - TILE_SIZE, 0, TILE_SIZE*2, TILE_SIZE*2]) do
+      next unless $state.clock > 17
+      flame = make_object(:flame, [fire_x, TILE_SIZE])
+      smoke = make_object(:smoke, [fire_x, TILE_SIZE*2])
+      insert_object(flame, smoke)
+      insert_trigger(clock: 1) { @objects.delete(flame) }
+      insert_trigger(clock: 9) { @objects.delete(smoke) }
+      true
+    end
 
     @actor = make_object(:player_rest, $state.player_position)
-    insert_object(@actor, name: :actor)
+    insert_object(@actor)
   end
 
   def init_geometry
@@ -72,9 +95,16 @@ class Level
     { position: position, spr: what, fr: 0, t: 0.0, mirror: mirror }
   end
 
-  def insert_object(object, name: nil)
-    # @object_idx[name] = object
-    @objects << object
+  def insert_object(*objects)
+    @objects.concat(objects)
+  end
+
+  def insert_hotspot(rect:, auto:, &block)
+    @hotspots << { auto: auto, rect: rect, handler: block }
+  end
+
+  def insert_trigger(clock:, &block)
+    @triggers << { time: clock..(clock + 1), handler: block}
   end
 
   def focus(target)
@@ -86,6 +116,22 @@ class Level
   end
 
   def update
+    interacting = $state.input.interact
+
+    @hotspots.each do |h|
+      next unless h.auto || interacting
+      next unless $state.player_position.inside_rect? h.rect
+      h.flag = h.handler.call
+    end
+    @hotspots.delete_if { |h| h.flag }
+
+    @triggers.each do |t|
+      next unless t.time.include? $state.clock
+      t.handler.call
+      t.flag = true
+    end
+    @triggers.delete_if { |t| t.flag }
+
     @spritepainter.animate
     @spritepainter.tint = SPRITE_TINT[$state.time_of_day]
     @tilepainter.inverse = $state.time_of_day == :night
