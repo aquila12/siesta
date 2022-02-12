@@ -8,7 +8,8 @@ require 'lib/constants.rb'
 
 require 'lib/drawing.rb'
 
-require 'lib/init_game.rb'
 require 'lib/time_of_day.rb'
+
+require 'lib/level.rb'
 
 require 'lib/game.rb'

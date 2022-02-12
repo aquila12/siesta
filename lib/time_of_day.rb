@@ -4,10 +4,9 @@ class TimeOfDay
   class << self
     def set(t)
       t = t % 24
-      sky = $state.sky
 
-      sky.object = sky_object(t)
-      sky.origin = [0, sunset_phase(t) * sky.dimensions.h * TILE_SIZE]
+      $sky.object = sky_object(t)
+      $sky.origin = [0, sunset_phase(t) * $sky.dimensions.h * TILE_SIZE]
       $state.time_of_day = (t < 5 || t > 19) ? :night : :day
     end
 
@@ -24,7 +23,6 @@ class TimeOfDay
       x_scale = CAMERA.w - SKY_OBJECT_SIZE
       y_scale = 4 * CAMERA.h
       p = ((t + 6) % 12) / 12.0
-      x =
       {
         x: p * x_scale, y: y_scale * (p * (1 - p)) - SKY_OBJECT_SIZE,
         w: SKY_OBJECT_SIZE, h: SKY_OBJECT_SIZE,
