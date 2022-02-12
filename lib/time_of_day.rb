@@ -30,7 +30,7 @@ class TimeOfDay
         w: SKY_OBJECT_SIZE, h: SKY_OBJECT_SIZE,
         path: 'resources/skyobjects.png',
         tile_x: sky_sprite_id(t) * SKY_OBJECT_SIZE, tile_y: 0,
-        tile_w: SKY_OBJECT_SIZE, tile_h: SKY_OBJECT_SIZE,
+        tile_w: SKY_OBJECT_SIZE, tile_h: SKY_OBJECT_SIZE
       }
     end
 

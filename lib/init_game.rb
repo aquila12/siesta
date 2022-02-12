@@ -23,6 +23,7 @@ def load_stage
   load_stage_tiles
   adjust_stage_geometry
   load_stage_furniture
+  insert_game_objects
 end
 
 def load_stage_tiles
@@ -58,7 +59,23 @@ def load_stage_furniture
     stage.passives << Spritepainter.make_sprite(
       %i[cactus bush gate].sample,
       rand(stage.rectangle.w - SPRITE_SIZE.w),
-      TILE_SIZE
+      TILE_SIZE,
+      mirror: [true, false].sample
     )
   end
+end
+
+def insert_game_objects
+  stage = $state.stage
+  stage.objects << Spritepainter.make_sprite(
+    :campfire,
+    rand(stage.rectangle.w - SPRITE_SIZE.w),
+    TILE_SIZE
+  )
+
+  stage.actor = Spritepainter.make_sprite(
+    :player_walk,
+    20,
+    TILE_SIZE
+  )
 end

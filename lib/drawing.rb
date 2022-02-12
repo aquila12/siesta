@@ -7,16 +7,27 @@ class Spritepainter
     @r, @g, @b = tint
   end
 
-  def self.make_sprite(what, x, y)
+  def self.make_sprite(what, x, y, mirror: false)
     {
-      x: x, y: y, spr: what, fr: 0, t: 0.0, mirror: false
+      x: x, y: y, spr: what, fr: 0, t: 0.0, mirror: mirror
     }
+  end
+
+  def animate
+    [@stage.actor, *@stage.objects].each do |sprite|
+      f = sprite.fr + 0.1
+      frames = SPRITES[sprite.spr].length
+      sprite.fr = f % frames
+    end
+
+    self
   end
 
   def draw_override(canvas)
     tw, th = [SPRITE_SIZE.w, SPRITE_SIZE.h]
     left, bottom, right, top = -tw, -th, CAMERA.right, CAMERA.top
     ox, oy = @stage.origin
+    ox += tw / 2
 
     [@stage.passives, @stage.objects, [@stage.actor]].each do |sprites|
       next unless sprites
@@ -28,7 +39,7 @@ class Spritepainter
         n += 1
         next unless s
 
-        x, y = [s.x - ox, s.y - oy]
+        x, y = [s.x.round - ox, s.y.round - oy]
         next unless(x > left && y > bottom && x < right && y < top)
         t = SPRITES[s.spr][s.fr]
         ty, tx = t.divmod(TILES_PER_ROW)
