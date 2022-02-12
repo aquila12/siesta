@@ -1,0 +1,6 @@
+devid=aquila12
+devtitle=FoxFlySolo
+gameid=sierra
+gametitle=Sierra: A Working Title
+version=0.9
+icon=resources/logo.png
