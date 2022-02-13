@@ -33,7 +33,9 @@ SPRITES = {
   cactus: sprite(40),
   gate: sprite(41),
   bush: sprite(42),
-  campfire: sprite(43)
+  campfire: sprite(43),
+  bucket: sprite(44),
+  cow: sprite(48, 4, rate: 1/50)
 }
 
 SPRITE_TINT = {
