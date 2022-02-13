@@ -10,20 +10,12 @@ def draw_stagescene
   window.draw
 end
 
-def demo_input
-  case $state.time
-  when (1..6) then $state.input.dpad = [1, 0]
-  when (8..10) then $state.input.dpad = [-1, 0]
-  else $state.input.dpad = [0, 0]
-  end
-end
-
 def do_movement
   actor = $level.actor
   input = $state.input
   dx = input.dpad.x * PLAYER_SPEED[$state.player_type]
 
-  if input.idle
+  if $state.time_to_idle <= 0
     stance = :rest
   else
     stance = dx.zero? ? :wait : :walk
@@ -44,8 +36,15 @@ def map_input(**what)
   end
 end
 
-def do_input(args)
-  input = $state.input = {}
+def do_input(args, demo: false)
+  input = $state.input = { }
+
+  if demo
+    case $state.time
+    when (1..3) then map_input r: true
+    when (4..5) then map_input l: true
+    end
+  end
 
   map_input l: args.inputs.keyboard.key_held.a,
             r: args.inputs.keyboard.key_held.d,
@@ -53,7 +52,6 @@ def do_input(args)
 
   $state.time_to_idle = 120 unless input.empty?
   $state.time_to_idle -= 1
-  input.idle = $state.time_to_idle <= 0
 
   input.dpad = [intybool(input.r) - intybool(input.l), 0]
 end
@@ -66,7 +64,7 @@ def init_game
   $state.time_to_idle = 0
 
   $state.time = 0
-  $state.clock = 6.0
+  $state.clock = 6.5
 
   $sky = Sky.new
   $level = Level.new
@@ -85,7 +83,7 @@ def tick(args)
   init_game if args.tick_count.zero?
   advance_time
 
-  $state.time > 15 ? do_input(args) : demo_input
+  do_input(args, demo: $state.time < 15)
   do_movement
   # puts $level.actor
 
