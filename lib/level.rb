@@ -31,7 +31,7 @@ class Level
   def load_furniture
     15.times do
       insert_object(
-        make_object(
+        GameObject.make(
           %i[cactus bush gate].sample,
           [ rand(@rectangle.w - SPRITE_SIZE.w), TILE_SIZE],
           mirror: [true, false].sample
@@ -42,31 +42,21 @@ class Level
 
   def load_doors
     insert_hotspot auto: true, rect: [0, 0, 16, CAMERA.h] do
-      insert_object(make_object(:cactus, [rand(40), rand(20)]))
+      insert_object(GameObject.make(:cactus, [rand(40), rand(20)]))
       true
     end
 
     insert_hotspot auto: false, rect: [@rectangle.w - 16, 0, 16, CAMERA.h] do
-      insert_object(make_object(:bush, [@rectangle.w - rand(40), rand(20)]))
+      insert_object(GameObject.make(:bush, [@rectangle.w - rand(40), rand(20)]))
       false
     end
   end
 
   def insert_game_objects
-    fire_x = rand(@rectangle.w - SPRITE_SIZE.w)
-    insert_object(make_object(:campfire, [fire_x, TILE_SIZE]))
+    @campfire = Campfire.new([2, TILE_SIZE])
+    @campfire.insert(self)
 
-    insert_hotspot(auto: false, rect: [fire_x - TILE_SIZE, 0, TILE_SIZE*2, TILE_SIZE*2]) do
-      next unless $state.clock > 17
-      flame = make_object(:flame, [fire_x, TILE_SIZE])
-      smoke = make_object(:smoke, [fire_x, TILE_SIZE*2])
-      insert_object(flame, smoke)
-      insert_trigger(clock: 1) { @objects.delete(flame) }
-      insert_trigger(clock: 9) { @objects.delete(smoke) }
-      true
-    end
-
-    @actor = make_object(:player_rest, $state.player_position)
+    @actor = GameObject.make(:player_rest, $state.player_position)
     insert_object(@actor)
   end
 
@@ -89,10 +79,6 @@ class Level
   def init_painters
     @tilepainter = Tilepainter.new(self)
     @spritepainter = Spritepainter.new(@objects, @origin)
-  end
-
-  def make_object(what, position, mirror: false)
-    { position: position, spr: what, fr: 0, t: 0.0, mirror: mirror }
   end
 
   def insert_object(*objects)
