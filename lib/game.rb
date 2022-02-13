@@ -78,7 +78,7 @@ def advance_time
   $state.clock += TIME_SCALE / 60.0
   $state.clock %= 24
 
-  $state.time_of_day = ($state.clock < 5 || $state.clock > 19) ? :night : :day
+  $state.time_of_day = ($state.clock < 5.5 || $state.clock > 18.5) ? :night : :day
 end
 
 def tick(args)

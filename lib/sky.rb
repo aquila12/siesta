@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 class Sky
-  attr_reader :tiledata, :tileset, :dimensions
+  attr_reader :tileset, :dimensions
 
   def initialize
-    @tiledata = [0] * 12 + [1] * 3 + [2] * 2 + [3] * 3
     @tileset = 'sky'
-    @dimensions = [0, 0, 21, @tiledata.length]
+    @dimensions = [0, 0, 21, tiledata.length]
 
     @tilepainter = Tilepainter.new(self, stride_i: 0, stride_j: 1)
   end
@@ -16,8 +15,15 @@ class Sky
     outputs.sprites << sky_object
   end
 
+  def tiledata
+    tiles_y = (CAMERA.h / TILE_SIZE).ceil
+    dp = 4.5 / @dimensions.h
+    p0 = 8 * sunset_phase - 2
+    Array.new(tiles_y) { |i| (p0 + i*dp).clamp(0,4).round }
+  end
+
   def origin
-    [0, sunset_phase * @dimensions.h * TILE_SIZE]
+    [0, 0]
   end
 
   def t
