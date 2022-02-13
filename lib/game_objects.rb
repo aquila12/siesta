@@ -14,7 +14,7 @@ class Campfire
 
     @fire = GameObject.make(:campfire, position)
     @flame = GameObject.make(:flame, position)
-    @smoke = GameObject.make(:smoke, position.rect_shift(0, TILE_SIZE))
+    @smoke = GameObject.make(:smoke, position)#.rect_shift(0, TILE_SIZE))
   end
 
   def insert(level)
@@ -25,9 +25,9 @@ class Campfire
   end
 
   def remove
-    @level.object.delete(@fire)
-    @level.object.delete(@flame)
-    @level.object.delete(@smoke)
+    @level.objects.delete(@fire)
+    @level.objects.delete(@flame)
+    @level.objects.delete(@smoke)
   end
 
   def interact
@@ -44,5 +44,30 @@ class Campfire
 
   def stop_smoke
     @level.objects.delete(@smoke)
+  end
+end
+
+class Horse
+  INTERACT_HITBOX = [-SPRITE_SIZE.w/2, -TILE_SIZE, SPRITE_SIZE.w, TILE_SIZE*2]
+
+  def initialize(position)
+    @hitbox = INTERACT_HITBOX.rect_shift([position])
+    @horse = GameObject.make(:horse, position)
+  end
+
+  def insert(level)
+    @level = level
+    @level.objects.push(@horse)
+
+    @level.insert_hotspot(auto: false, rect: @hitbox) { interact }
+  end
+
+  def remove
+    @level.objects.delete(@horse)
+  end
+
+  def interact
+    $state.player_type = :mounted
+    remove
   end
 end

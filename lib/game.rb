@@ -10,36 +10,28 @@ def draw_stagescene
   window.draw
 end
 
-def demo_move
+def demo_input
   case $state.time
-  when (1..6) then dx = 1
-  when (8..10) then dx = -1
-  when (12..15) then dx = nil
-  else dx = 0
-  end
-
-  actor = $level.actor
-  if dx
-    actor.spr = dx.zero? ? :player_wait : :player_walk
-    actor.position.x += 0.25 * dx
-    actor.mirror = dx.negative? ? true : dx.positive? ? false : actor.mirror
-  else
-    actor.spr = :player_rest
+  when (1..6) then $state.input.dpad = [1, 0]
+  when (8..10) then $state.input.dpad = [-1, 0]
+  else $state.input.dpad = [0, 0]
   end
 end
 
 def do_movement
   actor = $level.actor
   input = $state.input
-  dx = input.dpad.x * 0.25
+  dx = input.dpad.x * PLAYER_SPEED[$state.player_type]
 
   if input.idle
-    actor.spr = :player_rest
+    stance = :rest
   else
-    actor.spr = dx.zero? ? :player_wait : :player_walk
+    stance = dx.zero? ? :wait : :walk
     actor.position.x += dx
     actor.mirror = dx.negative? ? true : dx.positive? ? false : actor.mirror
   end
+
+  actor.spr = :"#{$state.player_type}_#{stance}"
 end
 
 def intybool(x)
@@ -70,6 +62,7 @@ def init_game
   $state = $gtk.args.state
 
   $state.player_position = [20, TILE_SIZE]
+  $state.player_type = :player
   $state.time_to_idle = 0
 
   $state.time = 0
@@ -92,13 +85,9 @@ def tick(args)
   init_game if args.tick_count.zero?
   advance_time
 
-  do_input(args)
-
-  if($state.time > 15)
-    do_movement
-  else
-    demo_move
-  end
+  $state.time > 15 ? do_input(args) : demo_input
+  do_movement
+  # puts $level.actor
 
   $level.update
   $level.focus($level.actor.position)

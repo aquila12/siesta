@@ -53,8 +53,11 @@ class Level
   end
 
   def insert_game_objects
-    @campfire = Campfire.new([2, TILE_SIZE])
+    @campfire = Campfire.new([CAMERA.w * 2 + rand(CAMERA.w), TILE_SIZE])
+    @horse = Horse.new([CAMERA.w * 3 + rand(CAMERA.w), TILE_SIZE])
+
     @campfire.insert(self)
+    @horse.insert(self)
 
     @actor = GameObject.make(:player_rest, $state.player_position)
     insert_object(@actor)

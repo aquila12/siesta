@@ -13,22 +13,35 @@ TIME_SCALE = 24.0 / 120
 
 SPRITE_SIZE = [0, 0, 16, 12]
 
+def sprite(first, count = 1, rate: 0)
+  {
+    frames: (first...(first + count)).to_a,
+    rate: rate
+  }
+end
+
 SPRITES = {
-  player_wait: [1],
-  player_walk: [1, 2, 3, 4],
-  player_rest: [5],
-  mounted_wait: [0],
-  mounted_walk: [24, 25, 26, 27, 28, 29],
-  mounted_rest: [8, 9, 10, 11],
-  smoke: [32, 33, 34, 35],
-  flame: [36, 37, 38, 39],
-  cactus: [40],
-  gate: [41],
-  bush: [42],
-  campfire: [43]
+  player_wait: sprite(1),
+  player_walk: sprite(1, 4, rate: 1/10),
+  player_rest: sprite(5),
+  mounted_wait: sprite(0),
+  mounted_walk: sprite(24, 6, rate: 1/3),
+  mounted_rest: sprite(8, 4, rate: 1/50),
+  horse: sprite(16, 4, rate: 1/50),
+  smoke: sprite(32, 4, rate: 1/12),
+  flame: sprite(36, 4, rate: 1/8),
+  cactus: sprite(40),
+  gate: sprite(41),
+  bush: sprite(42),
+  campfire: sprite(43)
 }
 
 SPRITE_TINT = {
   night: Color[NOKIA_LCD_LIGHT].rgb,
   day: Color[NOKIA_LCD_DARK].rgb
 }.freeze
+
+PLAYER_SPEED = {
+  player: 0.25,
+  mounted: 0.5
+}

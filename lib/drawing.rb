@@ -12,21 +12,15 @@ class Spritepainter
     @r, @g, @b = tint
   end
 
-  def self.make_sprite(what, x, y, mirror: false)
-    {
-      x: x, y: y, spr: what, fr: 0, t: 0.0, mirror: mirror
-    }
-  end
-
   def animate
     n = 0
     n_sprites = @sprites.length
     while(n < n_sprites) do
       s = @sprites[n]
+      clip = SPRITES[s.spr]
       n += 1
-      f = s.fr + 0.1
-      frames = SPRITES[s.spr].length
-      s.fr = f % frames
+      f = s.fr + clip.rate
+      s.fr = f % clip.frames.length
     end
   end
 
@@ -45,7 +39,7 @@ class Spritepainter
       x, y = [p.x.round - ox, p.y.round - oy]
       next unless(x > left && y > bottom && x < right && y < top)
 
-      t = SPRITES[s.spr][s.fr]
+      t = SPRITES[s.spr].frames[s.fr]
       ty, tx = t.divmod(TILES_PER_ROW)
 
       canvas.draw_sprite_3(
