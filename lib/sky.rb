@@ -17,9 +17,9 @@ class Sky
 
   def tiledata
     tiles_y = (CAMERA.h / TILE_SIZE).ceil
-    dp = 4.5 / @dimensions.h
-    p0 = 8 * sunset_phase - 2
-    Array.new(tiles_y) { |i| (p0 + i*dp).clamp(0,4).round }
+    dp = 2.7 / (4 * tiles_y)
+    p0 = 2 * sunset_phase - 0.6
+    Array.new(tiles_y) { |i| (8.0 * (p0 + i*dp).clamp(0,1)).round }
   end
 
   def origin

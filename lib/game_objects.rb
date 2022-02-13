@@ -14,7 +14,7 @@ class Campfire
 
     @fire = GameObject.make(:campfire, position)
     @flame = GameObject.make(:flame, position)
-    @smoke = GameObject.make(:smoke, position)#.rect_shift(0, TILE_SIZE))
+    @smoke = GameObject.make(:smoke, position.rect_shift(0, TILE_SIZE))
   end
 
   def insert(level)
