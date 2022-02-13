@@ -13,5 +13,6 @@ require 'lib/sky.rb'
 require 'lib/game_object.rb'
 require 'lib/level.rb'
 
+require 'app/levels.rb'
 require 'app/objects.rb'
 require 'app/game.rb'

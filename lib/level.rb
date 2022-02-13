@@ -5,50 +5,41 @@ class Level
 
   attr_reader :tiledata, :tileset, :dimensions, :origin
 
-  attr_reader :viewrect, :objects, :hotspots
+  attr_reader :viewrect, :objects, :hotspots, :facing
 
   def initialize
-    load_area($state.area)
+    @objects = []
+    @hotspots = []
+    @triggers = []
 
-    init_geometry
-    load_furniture
-    load_doors
+    load_area($state.area)
     insert_game_objects
     init_painters
   end
 
   def load_area(what)
-    @dimensions = dims = [0, 0, 210, 12]
-    @tileset = 'level'
-    @tiledata = Array.new(dims.w * dims.h, 0) { |n| (n < dims.w) ? 1 : 0 }
-    @objects = []
-    @hotspots = []
-    @triggers = []
-    @object_idx = {}
-    @anon = 1
+    a = AREAS[what]
+    @dimensions = [0, 0, *a.dimensions]
+    @tileset = a.tileset
+    @facing = a.facing || :s
+    init_geometry
+    @tiledata = Array.new(@dimensions.w * @dimensions.h, 0)
+    loader_proc a.tile_loader
+    loader_proc a.furniture_loader
+    loader_proc a.door_loader
   end
 
-  def load_furniture
-    15.times do
-      insert_object(
-        GameObject.make(
-          %i[cactus bush gate].sample,
-          [ rand(@rectangle.w - SPRITE_SIZE.w), TILE_SIZE],
-          mirror: [true, false].sample
-        )
-      )
-    end
+  def loader_proc(p)
+    instance_eval(&p) if p
   end
 
-  def load_doors
-    insert_hotspot auto: true, hitbox: [0, 0, 16, CAMERA.h] do
-      insert_object(GameObject.make(:cactus, [rand(40), rand(20)]))
-      true
-    end
-
-    insert_hotspot auto: false, hitbox: [@rectangle.w - 16, 0, 16, CAMERA.h] do
-      insert_object(GameObject.make(:bush, [@rectangle.w - rand(40), rand(20)]))
-      false
+  def stratum(j, t = nil)
+    n = j * @dimensions.w
+    i = 0
+    while(i < @dimensions.w) do
+      @tiledata[n] = t ? t : yield(i)
+      n += 1
+      i += 1
     end
   end
 
@@ -89,7 +80,12 @@ class Level
   end
 
   def insert_hotspot(**definition, &block)
-    @hotspots << { handler: block, position: [0, 0] }.merge(definition)
+    defaults = {
+      handler: block,
+      position: [0, 0],
+      auto: false
+    }
+    @hotspots << defaults.merge(definition)
   end
 
   def insert_trigger(clock:, &block)

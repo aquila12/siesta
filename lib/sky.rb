@@ -8,7 +8,6 @@ class Sky
   def initialize
     @tileset = 'sky'
     @dimensions = [0, 0, 42, tiledata.length]
-    @facing = :s
 
     @tilepainter = Tilepainter.new(self, stride_i: 0, stride_j: 1)
   end
@@ -26,7 +25,7 @@ class Sky
   end
 
   def origin
-    case @facing
+    case $level.facing
     when :se then [0, 0]
     when :s then [CAMERA.w / 2, 0]
     when :sw then [CAMERA.w, 0]

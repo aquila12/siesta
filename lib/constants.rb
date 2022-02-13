@@ -47,3 +47,5 @@ PLAYER_SPEED = {
   player: 0.25,
   mounted: 0.5
 }
+
+WARP_HITBOX = [-4, -1, 8, 32]

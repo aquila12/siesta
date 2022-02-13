@@ -63,7 +63,6 @@ end
 def init_game
   $state = $gtk.args.state
 
-  $state.player_position = [20, TILE_SIZE]
   $state.player_type = :player
   $state.time_to_idle = 0
 
@@ -71,6 +70,12 @@ def init_game
   $state.clock = 6.5
 
   $sky = Sky.new
+  load_level :track, at: [20, TILE_SIZE]
+end
+
+def load_level(area, at:)
+  $state.area = area
+  $state.player_position = at
   $level = Level.new
 end
 
