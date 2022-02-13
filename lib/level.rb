@@ -5,7 +5,7 @@ class Level
 
   attr_reader :tiledata, :tileset, :dimensions, :origin
 
-  attr_reader :viewrect, :objects
+  attr_reader :viewrect, :objects, :hotspots
 
   def initialize
     load_area($state.area)
@@ -41,12 +41,12 @@ class Level
   end
 
   def load_doors
-    insert_hotspot auto: true, rect: [0, 0, 16, CAMERA.h] do
+    insert_hotspot auto: true, hitbox: [0, 0, 16, CAMERA.h] do
       insert_object(GameObject.make(:cactus, [rand(40), rand(20)]))
       true
     end
 
-    insert_hotspot auto: false, rect: [@rectangle.w - 16, 0, 16, CAMERA.h] do
+    insert_hotspot auto: false, hitbox: [@rectangle.w - 16, 0, 16, CAMERA.h] do
       insert_object(GameObject.make(:bush, [@rectangle.w - rand(40), rand(20)]))
       false
     end
@@ -88,8 +88,8 @@ class Level
     @objects.concat(objects)
   end
 
-  def insert_hotspot(rect:, auto:, &block)
-    @hotspots << { auto: auto, rect: rect, handler: block }
+  def insert_hotspot(**definition, &block)
+    @hotspots << { handler: block, position: [0, 0] }.merge(definition)
   end
 
   def insert_trigger(clock:, &block)
@@ -104,22 +104,31 @@ class Level
     @origin.y = focus.top > @viewrect.top ? (@viewrect.top - CAMERA.h): [focus.bottom, @viewrect.bottom].max
   end
 
-  def update
+  def check_hotspots
     interacting = $state.input.interact
+    pos = $state.player_position
 
     @hotspots.each do |h|
       next unless h.auto || interacting
-      next unless $state.player_position.inside_rect? h.rect
+      rect = h.hitbox.rect_shift(h.position)
+      next unless pos.inside_rect? rect
       h.flag = h.handler.call
     end
     @hotspots.delete_if { |h| h.flag }
+  end
 
+  def check_triggers
     @triggers.each do |t|
       next unless t.time.include? $state.clock
       t.handler.call
       t.flag = true
     end
     @triggers.delete_if { |t| t.flag }
+  end
+
+  def update
+    check_hotspots
+    check_triggers
 
     @spritepainter.animate
     @spritepainter.tint = SPRITE_TINT[$state.time_of_day]

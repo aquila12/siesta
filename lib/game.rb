@@ -23,6 +23,9 @@ def do_movement
     actor.mirror = dx.negative? ? true : dx.positive? ? false : actor.mirror
   end
 
+  dismount = input.dismount && $state.player_type == :mounted
+  Horse.dismount(mirror: actor.mirror) if dismount
+
   actor.spr = :"#{$state.player_type}_#{stance}"
 end
 
@@ -36,19 +39,20 @@ def map_input(**what)
   end
 end
 
-def do_input(args, demo: false)
+def do_input(args)
   input = $state.input = { }
 
-  if demo
+  if $state.time < 7
     case $state.time
     when (1..3) then map_input r: true
     when (4..5) then map_input l: true
     end
+  else
+    map_input l: args.inputs.keyboard.key_held.a,
+              r: args.inputs.keyboard.key_held.d,
+              interact: args.inputs.keyboard.key_down.w,
+              dismount: args.inputs.keyboard.key_down.s
   end
-
-  map_input l: args.inputs.keyboard.key_held.a,
-            r: args.inputs.keyboard.key_held.d,
-            interact: args.inputs.keyboard.key_down.w
 
   $state.time_to_idle = 120 unless input.empty?
   $state.time_to_idle -= 1
@@ -83,7 +87,7 @@ def tick(args)
   init_game if args.tick_count.zero?
   advance_time
 
-  do_input(args, demo: $state.time < 15)
+  do_input(args)
   do_movement
   # puts $level.actor
 

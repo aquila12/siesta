@@ -4,38 +4,64 @@ class GameObject
   def self.make(what, position, mirror: false)
     { position: position, spr: what, fr: 0, t: 0.0, mirror: mirror }
   end
-end
-
-class Campfire
-  INTERACT_HITBOX = [-TILE_SIZE, -TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2]
 
   def initialize(position)
-    @hitbox = INTERACT_HITBOX.rect_shift([position])
+    @position = position
+    @sprites = []
+  end
 
-    @fire = GameObject.make(:campfire, position)
-    @flame = GameObject.make(:flame, position)
-    @smoke = GameObject.make(:smoke, position.rect_shift(0, TILE_SIZE))
+  def make(*args)
+    self.class.make(*args)
   end
 
   def insert(level)
     @level = level
-    @level.objects.push(@fire)
-
-    @level.insert_hotspot(auto: false, rect: @hitbox) { interact }
   end
 
   def remove
-    @level.objects.delete(@fire)
-    @level.objects.delete(@flame)
-    @level.objects.delete(@smoke)
+    @sprites.each do |s|
+      @level.objects.delete(s)
+    end
+  end
+
+  def sprite(*s)
+    @level.objects.push(*s)
+    @sprites.push(*s)
+  end
+
+  def hotspot(hitbox:, auto: false, &block)
+    block ||= proc { interact }
+    @level.insert_hotspot(auto: auto, position: @position, hitbox: hitbox, &block)
+  end
+
+  def trigger(*args, &block)
+    block ||= proc { timeout }
+    @level.insert_trigger(*args, &block)
+  end
+end
+
+class Campfire < GameObject
+  def initialize(position)
+    super
+
+    @fire = make(:campfire, position)
+    @flame = make(:flame, position)
+    @smoke = make(:smoke, position.rect_shift(0, TILE_SIZE))
+  end
+
+  def insert(level)
+    super
+    sprite @fire
+    hotspot hitbox: [-6, -1, 12, 12]
   end
 
   def interact
     return unless $state.clock > 17
 
-    @level.objects.push(@flame, @smoke)
-    @level.insert_trigger(clock: 1) { stop_flame }
-    @level.insert_trigger(clock: 9) { stop_smoke }
+    sprite @flame, @smoke
+    trigger(clock: 1) { stop_flame }
+    trigger(clock: 9) { stop_smoke }
+    true
   end
 
   def stop_flame
@@ -47,27 +73,28 @@ class Campfire
   end
 end
 
-class Horse
-  INTERACT_HITBOX = [-SPRITE_SIZE.w/2, -TILE_SIZE, SPRITE_SIZE.w, TILE_SIZE*2]
+class Horse < GameObject
+  def self.dismount(mirror: false)
+    $state.player_type = :player
+    position = $state.player_position.rect_shift([0, 0])
+    new(position, mirror: mirror).insert($level)
+  end
 
-  def initialize(position)
-    @hitbox = INTERACT_HITBOX.rect_shift([position])
-    @horse = GameObject.make(:horse, position)
+  def initialize(position, mirror: false)
+    super(position)
+    @horse = make(:horse, position, mirror: mirror)
   end
 
   def insert(level)
-    @level = level
-    @level.objects.push(@horse)
-
-    @level.insert_hotspot(auto: false, rect: @hitbox) { interact }
-  end
-
-  def remove
-    @level.objects.delete(@horse)
+    super
+    sprite @horse
+    hotspot hitbox: [-8, -1, 16, 12]
   end
 
   def interact
     $state.player_type = :mounted
+    $state.player_position.x = @position.x
     remove
+    true
   end
 end
