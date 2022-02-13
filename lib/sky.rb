@@ -3,9 +3,12 @@
 class Sky
   attr_reader :tileset, :dimensions
 
+  attr_accessor :facing
+
   def initialize
     @tileset = 'sky'
-    @dimensions = [0, 0, 21, tiledata.length]
+    @dimensions = [0, 0, 42, tiledata.length]
+    @facing = :s
 
     @tilepainter = Tilepainter.new(self, stride_i: 0, stride_j: 1)
   end
@@ -23,7 +26,11 @@ class Sky
   end
 
   def origin
-    [0, 0]
+    case @facing
+    when :se then [0, 0]
+    when :s then [CAMERA.w / 2, 0]
+    when :sw then [CAMERA.w, 0]
+    end
   end
 
   def t
@@ -31,11 +38,12 @@ class Sky
   end
 
   def sky_object
-    x_scale = CAMERA.w - SKY_OBJECT_SIZE
+    x_scale = CAMERA.w * 2 - SKY_OBJECT_SIZE
     y_scale = 4 * CAMERA.h
-    p = ((t + 6) % 12) / 12.0
+    x = (((t + 6) % 12) / 12.0 * x_scale).round
+    p = (x / x_scale)
     {
-      x: p * x_scale, y: y_scale * (p * (1 - p)) - SKY_OBJECT_SIZE,
+      x: x - origin.x, y: y_scale * (p * (1 - p)) - SKY_OBJECT_SIZE,
       w: SKY_OBJECT_SIZE, h: SKY_OBJECT_SIZE,
       path: 'resources/skyobjects.png',
       tile_x: sky_sprite_id * SKY_OBJECT_SIZE, tile_y: 0,
