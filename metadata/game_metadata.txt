@@ -1,6 +1,6 @@
 devid=aquila12
 devtitle=FoxFlySolo
 gameid=siesta
-gametitle=Siesta: A Working Title
-version=0.9
+gametitle=Siesta
+version=1.0
 icon=resources/logo-4x.png
