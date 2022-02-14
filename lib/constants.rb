@@ -6,8 +6,6 @@ NOKIA_LCD_DARK  = '#43523d'
 TILE_SIZE = 4
 TILES_PER_ROW = 8
 
-SKY_OBJECT_SIZE = 12
-
 CAMERA = [0, 0, 84, 48]
 TIME_SCALE = 24.0 / 120
 
@@ -36,6 +34,15 @@ SPRITES = {
   campfire: sprite(43),
   bucket: sprite(44),
   cow: sprite(48, 4, rate: 1/50)
+}
+
+SKY_OBJECTS = {
+  sun_low: [0, 0, 12, 12],
+  moon: [12, 0, 12, 12],
+  sun_high: [24, 0, 12, 12],
+  stratocumulus: [0, 12, 20, 8],
+  cumulus: [20, 12, 16, 8],
+  altostratus: [0, 20, 32, 4]
 }
 
 SPRITE_TINT = {

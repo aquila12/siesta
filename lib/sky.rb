@@ -8,13 +8,23 @@ class Sky
   def initialize
     @tileset = 'sky'
     @dimensions = [0, 0, 42, tiledata.length]
+    @rectangle = @dimensions.scale_rect(TILE_SIZE)
+    @clouds = Array.new(3) { gen_cloud(x: rand(@rectangle.w)) }
 
     @tilepainter = Tilepainter.new(self, stride_i: 0, stride_j: 1)
+  end
+
+  def update
+    @clouds.each do |c|
+      c.x += 0.1 * (c.y / @rectangle.h) ** 1.2
+      c.merge! gen_cloud if c.x > @rectangle.w
+    end
   end
 
   def draw(outputs)
     outputs.sprites << @tilepainter
     outputs.sprites << sky_object
+    outputs.sprites << @clouds.map { |c| object_at(c.what, c.x, c.y) }
   end
 
   def tiledata
@@ -37,16 +47,20 @@ class Sky
   end
 
   def sky_object
-    x_scale = CAMERA.w * 2 - SKY_OBJECT_SIZE
-    y_scale = 4 * CAMERA.h
+    x_scale = @rectangle.w - 12
+    y_scale = 4 * @rectangle.h
     x = (((t + 6) % 12) / 12.0 * x_scale).round
     p = (x / x_scale)
+    object_at(celestial_object, x, y_scale * (p * (1 - p)) - 12)
+  end
+
+  def object_at(what, x, y)
+    src_rect = SKY_OBJECTS[what]
     {
-      x: x - origin.x, y: y_scale * (p * (1 - p)) - SKY_OBJECT_SIZE,
-      w: SKY_OBJECT_SIZE, h: SKY_OBJECT_SIZE,
+      x: x - origin.x, y: y - origin.y, w: src_rect.w, h: src_rect.h,
       path: 'resources/skyobjects.png',
-      tile_x: sky_sprite_id * SKY_OBJECT_SIZE, tile_y: 0,
-      tile_w: SKY_OBJECT_SIZE, tile_h: SKY_OBJECT_SIZE
+      tile_x: src_rect.x, tile_y: src_rect.y,
+      tile_w: src_rect.w, tile_h: src_rect.h
     }
   end
 
@@ -59,12 +73,26 @@ class Sky
     end
   end
 
-  def sky_sprite_id
+  def celestial_object
     case t
-    when (6..9) then 0
-    when (9..15) then 2
-    when (15..18) then 0
-    else 1
+    when (6..9) then :sun_low
+    when (9..15) then :sun_high
+    when (15..18) then :sun_low
+    else :moon
+    end
+  end
+
+  def gen_cloud(x: -32)
+    y = @rectangle.h / 3 + rand(@rectangle.h / 2)
+    { x: x, y: y, what: random_cloud(y) }
+  end
+
+  def random_cloud(y)
+    r = rand + (y.to_f / @rectangle.h)
+    case
+    when r > 1.4 then :altostratus
+    when r > 0.6 then :stratocumulus
+    else :cumulus
     end
   end
 end

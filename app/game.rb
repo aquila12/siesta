@@ -97,6 +97,7 @@ def tick(args)
   # puts $level.actor
 
   $level.update
+  $sky.update
   $level.focus($level.actor.position)
 
   # $game = @game = Game.new(args) if args.tick_count.zero?
